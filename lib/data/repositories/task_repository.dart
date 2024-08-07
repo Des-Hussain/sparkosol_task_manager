@@ -6,7 +6,6 @@ class TaskRepositoryIml implements TaskRepository {
 
   @override
   Future<List<Task>> getTasks() async {
-    await Future.delayed(const Duration(seconds: 1));
     return _tasks;
   }
 

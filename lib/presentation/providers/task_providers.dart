@@ -1,56 +1,49 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_it/get_it.dart';
+import 'package:sparkosol_task_manager/data/repositories/task_repository.dart';
 import 'package:sparkosol_task_manager/domain/entities/task.dart';
-import 'package:sparkosol_task_manager/domain/repositories/task_repository.dart';
 import 'package:sparkosol_task_manager/domain/usecases/task_use_cases.dart';
-import 'package:sparkosol_task_manager/presentation/views/task_states.dart';
 
-final taskNotifierProvider =
-    StateNotifierProvider<TaskListNotifier, TaskStates>((ref) {
-  final taskUseCases = TaskUseCases(GetIt.I<TaskRepository>());
-  return TaskListNotifier(ref, taskUseCases);
+final taskListProvider =
+    StateNotifierProvider<TaskListNotifier, List<Task>>((ref) {
+  return TaskListNotifier(ref);
 });
 
-class TaskListNotifier extends StateNotifier<TaskStates> {
-  final TaskUseCases taskUseCases;
+class TaskListNotifier extends StateNotifier<List<Task>> {
   final Ref ref;
 
-  TaskListNotifier(this.ref, this.taskUseCases) : super(TaskLoadingState()) {
-    loadTasks();
-  }
+  TaskUseCases taskUseCases = TaskUseCases(TaskRepositoryIml());
+
+  TaskListNotifier(this.ref) : super([]);
 
   Future<void> loadTasks() async {
     try {
-      state = TaskLoadingState();
-      ref.read(taskListProvider).clear();
+      // Perform load operation
+      state = [];
       final tasks = await taskUseCases.getTasks();
-      ref.read(taskListProvider.notifier).update((state) => tasks);
-      state = TaskSuccessState();
+      state = tasks;
     } catch (e, stackTrace) {
-      state = TaskErrorState(
-          error: e.toString(), errorMessage: stackTrace.toString());
+      debugPrint('Error adding task: $e, Stack trace: $stackTrace');
     }
   }
 
   Future<void> deleteTask(String taskId) async {
     try {
+      // Perform delete operation
       await taskUseCases.deleteTask(taskId);
-      loadTasks(); // Reload tasks after deletion
+      loadTasks();
     } catch (e, stackTrace) {
-      state = TaskErrorState(
-          error: e.toString(), errorMessage: stackTrace.toString());
+      debugPrint('Error adding task: $e, Stack trace: $stackTrace');
     }
   }
 
   Future<void> addTask(Task task) async {
     try {
+      // Perform add operation
       await taskUseCases.addTask(task);
-      loadTasks(); // Reload tasks after addition
+      loadTasks();
     } catch (e, stackTrace) {
-      state = TaskErrorState(
-          error: e.toString(), errorMessage: stackTrace.toString());
+      debugPrint('Error adding task: $e, Stack trace: $stackTrace');
     }
   }
 }
-
-final taskListProvider = StateProvider<List<Task>>((ref) => []);
