@@ -55,7 +55,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             ElevatedButton(
               onPressed: () => _showAddTaskDialog(context, ref),
-              child: const Text("Add", style: TextStyle(fontSize: 20)),
+              child: const Text("Add Task", style: TextStyle(fontSize: 20)),
             )
           ],
         ),
@@ -90,7 +90,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Navigator.of(context).pop();
                 }
               },
-              child: const Text('Add Task'),
+              child: const Text('Add'),
             ),
           ],
         );
